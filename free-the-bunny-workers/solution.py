@@ -1,77 +1,3 @@
-"""
-The below formulas are derived just from looking at many examples
-and trying to match the examples to a formula
-
-num_given = ( num_bunnies C num_required ) * num_required / num_bunnies
-num_distinct = num_bunnies C (num_required-1)
-uses_per_key = ( num_bunnies C num_required ) * num_required / num_distinct
-
-4 bunnies, 2 required
-
-4C1 = 4 distinct
-4C2 * 2 / 4 = 3 -> 3 given
-4C2 * 2 / 4 = 3 uses_per_key
-
-0 2 3
-0 1 3
-1 2 3
-0 2 1
-
-
-4 bunnies, 1 required
-4C0 = 1 distinct
-4C1 * 1 / 4 = 1 -> 1 given
-4C1 * 1 / 1 = 4 uses_per_key
-
-0
-0
-0
-0
-
-
-4 bunnies, 3 required
-4C2 = 6 distinct
-4C3 * 3 / 4 = 3 -> 3 given
-4C3 * 3 / 6 = 4 * 3 / 6 = 2 uses_per_key
-
-0 1 2
-0 2 3
-3 4 5
-1 4 5
-
-
-5 bunnies, 3 required
-5C2 = 10 distinct
-5C3 * 3 / 5 = 10*3/5 = 6 given
-5C3 * 3 / 10 = 3 uses_per_key
-
-0 1 2 3 4 5
-0 1 2 6 7 8
-0 3 4 6 7 9
-1 3 5 6 8 9
-2 4 5 7 8 9
-
-
-2 bunnies, 2 required
-2C1 = 2 distinct
-2C2 * 2 / 2 = 1 given
-2C2 * 2 / 2 = 1 uses_per_key
-
-0
-1
-
-
-3 bunnies, 2 required
-3C1 = 3 distinct
-3C2 * 2 / 3 = 3 * 2 / 3 = 2 given
-3C2 * 2 / 3 = 2 uses_per_key
-
-0 1
-0 2
-1 2
-"""
-
-
 import math
 import random
 import numpy
@@ -160,7 +86,8 @@ class KeyList:
 
 def is_valid(l, uses_per_key, num_required, num_distinct):
     flattened = numpy.array(l).flatten().tolist()
-    for i in range(max(flattened)):
+    print(flattened)
+    for i in range(max(flattened) + 1):
         if flattened.count(i) != uses_per_key:
             return False
 
@@ -172,7 +99,8 @@ def is_valid(l, uses_per_key, num_required, num_distinct):
         a = set()
         for idx in combo:
             a.update(set(l[idx]))
-        truths = [i in a for i in range(num_distinct + 1)]
+        truths = [i in a for i in range(num_distinct)]
+        print("valid", truths)
         if not all(truths):
             return False
 
@@ -180,7 +108,8 @@ def is_valid(l, uses_per_key, num_required, num_distinct):
         a = set()
         for idx in combo:
             a.update(set(l[idx]))
-        truths = [i in a for i in range(num_distinct + 1)]
+        truths = [i in a for i in range(num_distinct)]
+        print("invalid", truths)
         if all(truths):
             return False  # we don't want i-1 to be able to do it
 
@@ -225,7 +154,14 @@ def solution(num_buns, num_required):
     uses_per_key = math.comb(num_buns, num_required) * num_required / distinct_keys
     num_given, uses_per_key = int(num_given), int(uses_per_key)
 
-    for overlap in range(num_given):
+    print()
+    print("there should be", distinct_keys, "distinct keys")
+    print("give each bunny", num_given, "key(s)")
+    print("each key should appear", uses_per_key, "times")
+    print("possible layouts are", find_all_combos(num_buns, num_required))
+
+    for overlap in range(num_given + 1):
+        print("overlap is", overlap)
         ret = [[] for i in range(num_buns)]
         keys = KeyList(distinct_keys)
         for i in range(num_buns):
@@ -244,25 +180,24 @@ def solution(num_buns, num_required):
         # check if ret is valid
         if is_valid(ret, uses_per_key, num_required, distinct_keys):
             break
-
-    print()
-    print("there should be", distinct_keys, "distinct keys")
-    print("give each bunny", num_given, "key(s)")
-    print("each key should appear", uses_per_key, "times")
+        print("failed with overlap", overlap, "and values", ret)
+    else:
+        ret = []
     # print(ret)
-    print()
 
-    for row in ret:
-        row.sort()
+    # for row in ret:
+    #    row.sort()
 
     return ret
 
 
-print(solution(5, 3))
+"""print(solution(5, 3))
 print(solution(3, 2))
 print(solution(4, 1))
 print(solution(4, 4))
 print(solution(5, 4))
-
+"""
+# print(solution(4, 2))
+print(solution(5, 3))
 
 # find_all_combos(5, 3)
