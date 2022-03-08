@@ -73,6 +73,8 @@ uses_per_key = ( num_bunnies C num_required ) * num_required / num_distinct
 
 
 import math
+import random
+import numpy
 
 # ok so the return value should be a list
 # len(l) = num_bunnies
@@ -146,6 +148,7 @@ class KeyList:
         ret = self.used_list[0].retrieve()
         self.used_list.sort()
         self.key_list.sort()
+        return ret
 
     def __str__(self):
         ret = "["
@@ -153,6 +156,52 @@ class KeyList:
             ret += "(" + str(i) + "), "
         ret += "]"
         return ret
+
+
+def is_valid(l, uses_per_key, num_required, num_distinct):
+    flattened = numpy.array(l).flatten().tolist()
+    for i in range(max(flattened)):
+        if flattened.count(i) != uses_per_key:
+            return False
+
+    # make sure that it doesn't work with
+    # num_required - 1 bunnies
+    valid_ones = find_all_combos(len(l), num_required)
+    invalid_ones = find_all_combos(len(l), num_required - 1)
+    for combo in valid_ones:
+        a = set()
+        for idx in combo:
+            a.update(set(l[idx]))
+        truths = [i in a for i in range(num_distinct + 1)]
+        if not all(truths):
+            return False
+
+    for combo in invalid_ones:
+        a = set()
+        for idx in combo:
+            a.update(set(l[idx]))
+        truths = [i in a for i in range(num_distinct + 1)]
+        if all(truths):
+            return False  # we don't want i-1 to be able to do it
+
+    return True
+
+
+def find_all_combos(num_buns, num_req):
+    ret = []
+    choices = [i for i in range(num_buns)]
+    cur = []
+    total_num = math.comb(num_buns, num_req)
+    found = 0
+    while found != total_num:
+        temp = choices.copy()
+        cur = []
+        for i in range(num_req):
+            cur.append(temp.pop(random.randint(0, len(temp) - 1)))
+        if cur not in ret:
+            ret.append(cur)
+            found += 1
+    return ret
 
 
 def solution(num_buns, num_required):
@@ -168,56 +217,52 @@ def solution(num_buns, num_required):
     if num_required == 0:
         return []
 
-    ret = [[] for i in range(num_buns)]
-
     # len(ret[i]) == num_given
     # each number appears uses_per_key times
     # there are distinct_keys different keys
     distinct_keys = math.comb(num_buns, num_required - 1)
     num_given = math.comb(num_buns, num_required) * num_required / num_buns
     uses_per_key = math.comb(num_buns, num_required) * num_required / distinct_keys
+    num_given, uses_per_key = int(num_given), int(uses_per_key)
 
-    keys = KeyList(distinct_keys)
-    for i in range(num_buns):
-        if i == 0:
-            ret[i] = [keys.get_next() for i in range(int(num_given))]
-            print(keys)
+    for overlap in range(num_given):
+        ret = [[] for i in range(num_buns)]
+        keys = KeyList(distinct_keys)
+        for i in range(num_buns):
+            if i == 0:
+                ret[i] = [keys.get_next() for i in range(num_given)]
+                # print(keys)
+            else:
+                # fill the current
+                for x in range(overlap):
+                    ret[i].append(keys.get_next_used())
+                for o in range(overlap, num_given):
+                    ret[i].append(keys.get_next())
+        # print(ret)
+        # print()
 
+        # check if ret is valid
+        if is_valid(ret, uses_per_key, num_required, distinct_keys):
+            break
+
+    print()
     print("there should be", distinct_keys, "distinct keys")
     print("give each bunny", num_given, "key(s)")
     print("each key should appear", uses_per_key, "times")
-    print(ret)
+    # print(ret)
     print()
+
+    for row in ret:
+        row.sort()
 
     return ret
 
 
-solution(5, 3)
-solution(3, 2)
-solution(4, 1)
-solution(4, 4)
-solution(5, 4)
+print(solution(5, 3))
+print(solution(3, 2))
+print(solution(4, 1))
+print(solution(4, 4))
+print(solution(5, 4))
 
-"""
-distinct_keys = math.comb(num_buns, num_required)
-    used = {}
-    unused = {}
-    for overlap in range(9):
-        for keys_to_give in range(math.factorial(num_buns)):
-            used = {0: [i for i in range(distinct_keys)]}
-            for i in range(1, overlap + 1):
-                used[i] = []
-            ret[0] = [i for i in range(keys_to_give)]
-            for num in ret[0]:
-                used[0].remove(num)
-                used[1].append(num)
 
-            for i in range(1, num_buns):
-                prev = ret[i - 1]
-                for t in range(overlap):
-                    # for now, assert that overlap and times used are equal
-                    prev[t] = used
-    # so maybe we can iterate over distinct keys
-    # and iterate through given keys
-
-"""
+# find_all_combos(5, 3)
