@@ -16,6 +16,9 @@ def solution(w, h, s):
     @param s - the number of states that each cell can have
     """
 
+    if s == 0:
+        return 1  # there's only one way to arrange it when there's only one state
+
     start = d.now()
     layouts_lst = []
     for i in range(s):
@@ -33,5 +36,6 @@ def solution(w, h, s):
     print(f"time taken was {(d.now()-start).total_seconds()}")
 
 
-solution(2, 2, 2)
-solution(2, 2, 3)
+if __name__ == "__main__":
+    solution(2, 2, 2)
+    solution(2, 2, 3)
