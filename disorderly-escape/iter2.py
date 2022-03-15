@@ -27,3 +27,13 @@ for i in range(15):
 #  1 3 3 1
 # 1 4 6 4 1
 # (2, 2, 3) -> 27
+
+# width
+# height
+# states
+
+# 2 2 2 -> 7 non-equal, 16 distinct (verified)
+# 2 2 3 -> 27 non-equal, 81 distinct (verified)
+# 2 3 4 -> 430 non-equal, 4096 distinct (verified)
+
+# so num distinct = s^(w*h)
