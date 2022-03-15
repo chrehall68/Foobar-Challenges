@@ -39,3 +39,5 @@ def solution(w, h, s):
 if __name__ == "__main__":
     solution(2, 2, 2)
     solution(2, 2, 3)
+    # solution(2, 3, 4)
+    solution(2, 3, 2)
