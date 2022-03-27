@@ -1,12 +1,10 @@
-import math
-
-
 def solution(w, h, s):
     distinct_states = s ** (w * h)
     print(distinct_states)
 
 
 print(solution(2, 3, 2))
+print(solution(2, 3, 4))
 
 # width
 # height
